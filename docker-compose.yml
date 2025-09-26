@@ -1,63 +1,50 @@
-version: "3.9"
-
 services:
-  web:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
+  postgres:
+    image: postgres:16-alpine
+    container_name: app-postgres
+    environment:
+      POSTGRES_DB: brainrot
+      POSTGRES_USER: brainrot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      # Utilise un volume nommé (pas un bind-mount de ./db/data) pour éviter les permissions
+      - pgdata:/var/lib/postgresql/data
+      # Monte tes scripts d'init (SQL) en lecture seule s'ils existent
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "brainrot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
-      - "8080:80"
-    depends_on:
-      api:
-        condition: service_healthy
+      - "5432:5432" # optionnel pour accéder depuis ta machine
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    env_file:
-      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      # IMPORTANT : hostname = **nom du service** 'postgres', pas localhost
+      DATABASE_URL: postgres://brainrot:${POSTGRES_PASSWORD:-changeme}@postgres:5432/brainrot
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "3000:3000"
-    depends_on:
-      db:
-        condition: service_healthy
 
-  db:
-    image: postgres:16
-    container_name: app-postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        # si ton front a besoin de l’URL de l’API au build (Vite) :
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
     ports:
-      - "8082:5432" # host 8082 -> container 5432
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: app-pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+      - "8080:80"
     depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "8083:80" # host 8083 -> container 80
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-      # Optionnel: préconfigurer un serveur (voir fichier ci-dessous)
-      # - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - api
 
 volumes:
-  db_data:
-  pgadmin_data:
+  pgdata:
