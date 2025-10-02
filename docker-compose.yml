@@ -10,7 +10,7 @@ services:
       # Utilise un volume nommé (pas un bind-mount de ./db/data) pour éviter les permissions
       - pgdata:/var/lib/postgresql/data
       # Monte tes scripts d'init (SQL) en lecture seule s'ils existent
-      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "brainrot" ]
       interval: 5s
