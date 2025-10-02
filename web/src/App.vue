@@ -21,14 +21,17 @@ const router = useRouter()
 const todos = ref([])
 const title = ref('')
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
+
+
 const load = async () => {
-  const r = await fetch('/api/v1/cards')
+  const r = await fetch(`${apiBaseUrl}/api/v1/cards`)
   todos.value = await r.json()
 }
 
 const add = async () => {
   if (!title.value) return
-  await fetch('/api/v1/cards', {
+  await fetch(`${apiBaseUrl}/api/v1/cards`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title: title.value })
