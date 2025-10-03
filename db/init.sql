@@ -221,7 +221,7 @@ VALUES ('Bluberini Octopusini', 0, 'commun', NULL),
   ('Cocco Bello Sala Mello', 0, 'commun', NULL),
   (
     'Tukitukitukituki Tukitukitukita',
-    '' 0,
+    0,
     'commun',
     NULL
   ),
