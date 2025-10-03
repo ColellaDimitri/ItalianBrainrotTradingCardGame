@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS cards (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     UNIQUE (nom)
 );
--- Insertion des 150 cartes Alpha
+-- Insertion des 150 cartes Alpha (communes, sans capacité)
 INSERT INTO cards (nom, puissance, rarete, id_capacite)
 VALUES ('Bluberini Octopusini', 0, 'commun', NULL),
   ('Tirilicalica Tirilicalaco', 0, 'commun', NULL),
@@ -221,7 +221,7 @@ VALUES ('Bluberini Octopusini', 0, 'commun', NULL),
   ('Cocco Bello Sala Mello', 0, 'commun', NULL),
   (
     'Tukitukitukituki Tukitukitukita',
-    0,
+    '' 0,
     'commun',
     NULL
   ),
