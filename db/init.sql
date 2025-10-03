@@ -260,8 +260,8 @@ VALUES ('Bluberini Octopusini', 0, 'commun', NULL),
   ('Trombonini Linguini', 0, 'commun', NULL),
   ('Capuchino Assassino', 0, 'commun', NULL),
   ('Olegolini, der Zauberini', 0, 'commun', NULL);
--- Index recherche approximative sur le nom (utile pour l’UX)
-CREATE INDEX IF NOT EXISTS idx_cards_nom_trgm ON cards USING GIN (nom gin_trgm_ops);
+-- Index sur le nom en minuscules pour recherche insensible a la casse
+CREATE INDEX IF NOT EXISTS idx_cards_nom_lower ON cards (LOWER(nom));
 -- ---------------------------------------------------------
 -- Collection d’un utilisateur (inventaire)
 -- ---------------------------------------------------------
