@@ -38,7 +38,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER LANGUAGE plpgsql AS $$ BEGIN NEW.updated_at := now();
 RETURN NEW;
 END;
-$$ CREATE TRIGGER users_set_updated_at BEFORE
+$$;
+CREATE TRIGGER users_set_updated_at BEFORE
 UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 -- Unicité insensible à la casse sur login (sans extension citext)
 CREATE UNIQUE INDEX IF NOT EXISTS users_login_lower_idx ON users (LOWER(login));
